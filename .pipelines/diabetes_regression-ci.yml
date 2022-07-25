@@ -78,7 +78,6 @@ stages:
     pool: server
     variables:
       AMLPIPELINE_ID: $[ dependencies.Get_Pipeline_ID.outputs['getpipelineid.AMLPIPELINEID'] ]
-    steps:
   - job: "Training_Run_Report"
     dependsOn: "Run_ML_Pipeline"
     condition: always()
