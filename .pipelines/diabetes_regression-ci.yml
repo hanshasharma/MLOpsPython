@@ -17,9 +17,7 @@ trigger:
     - ml_service/pipelines/diabetes_regression_build_train_pipeline_with_r.py
     - ml_service/pipelines/diabetes_regression_build_train_pipeline_with_r_on_dbricks.py
 
-variables:
-- template: diabetes_regression-variables-template.yml
-- group: devopsforai-aml-vg
+
 
 pool:
   vmImage: ubuntu-latest
@@ -45,12 +43,13 @@ stages:
           # Invoke the Python building and publishing a training pipeline
           python -m ml_service.pipelines.diabetes_regression_build_train_pipeline
       displayName: 'Publish Azure Machine Learning Pipeline'
+    variables:
+      - template: diabetes_regression-variables-template.yml
+      - group: devopsforai-aml-vg
 
 - stage: 'Trigger_AML_Pipeline'
   displayName: 'Train and evaluate model'
   condition: succeeded()
-  variables:
-    BUILD_URI: '$(SYSTEM.COLLECTIONURI)$(SYSTEM.TEAMPROJECT)/_build/results?buildId=$(BUILD.BUILDID)'
   jobs:
   - job: "Get_Pipeline_ID"
     condition: and(succeeded(), eq(coalesce(variables['auto-trigger-training'], 'true'), 'true'))
@@ -95,3 +94,5 @@ stages:
     timeoutInMinutes: 0
     steps:
     - template: diabetes_regression-publish-model-artifact-template.yml
+    variables:
+      BUILD_URI: '$(SYSTEM.COLLECTIONURI)$(SYSTEM.TEAMPROJECT)/_build/results?buildId=$(BUILD.BUILDID)'
